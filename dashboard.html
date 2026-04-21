@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body onload="showDashboard()">
+
+<div class="container">
+
+<h1>Admin Dashboard</h1>
+
+<h2>Add Product</h2>
+
+<input id="pname" placeholder="Product Name">
+<input id="pprice" type="number" placeholder="Price">
+<input id="pprofit" type="number" placeholder="Profit">
+
+<select id="pcat" class="select-box">
+<option value="">Select Category</option>
+<option value="mobile">Mobile</option>
+<option value="watch">Watch</option>
+<option value="headphone">Headphone</option>
+<option value="charger">Charger</option>
+</select>
+
+<input type="file" id="pimg">
+
+<button onclick="addProduct()">Add Product</button>
+
+<h2>Total Profit : <span id="profit"></span></h2>
+
+<h2>Orders</h2>
+
+<table border="1" width="100%">
+<tr>
+<th>Customer</th>
+<th>Product</th>
+<th>Price</th>
+<th>Profit</th>
+<th>Date</th>
+<th>Return</th>
+<th>Delete</th>
+</tr>
+
+<tbody id="orders"></tbody>
+
+</table>
+
+<h2>Inventory</h2>
+
+<table border="1" width="100%">
+<tr>
+<th>Image</th>
+<th>Name</th>
+<th>Price</th>
+<th>Profit</th>
+<th>Qty</th>
+<th>Delete</th>
+</tr>
+
+<tbody id="inventory"></tbody>
+
+</table>
+
+<button onclick="backHome()">Home</button>
+
+</div>
+
+<script src="app.js"></script>
+
+</body>
+</html>
