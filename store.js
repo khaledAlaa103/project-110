@@ -48,11 +48,14 @@ if(p.category==cat){
 
 data+=`
 <div class="card" onclick="viewProduct(${i})">
+
 <img src="${p.img}">
 <h3>${p.name}</h3>
 <p>Price : ${p.price}</p>
 <p>Stock : ${p.qty}</p>
+
 <button onclick="addToCart(${i});event.stopPropagation()">Add To Cart</button>
+
 </div>
 `
 
@@ -63,21 +66,122 @@ data+=`
 document.getElementById("products").innerHTML=data
 }
 
+// فتح صفحة التفاصيل
+function viewProduct(i){
+
+let inventory = JSON.parse(localStorage.getItem("inventory"))
+
+localStorage.setItem("selectedProduct", JSON.stringify(inventory[i]))
+
+window.location = "productDetails.html"
+
+}
+
+// عرض تفاصيل المنتج
+function showProductDetails(){
+
+let p = JSON.parse(localStorage.getItem("selectedProduct"))
+
+let data = `
+<div class="card" style="width:300px;margin:auto">
+
+<img src="${p.img}" style="height:200px">
+
+<h2>${p.name}</h2>
+
+<p><b>Price:</b> ${p.price}</p>
+<p><b>Available:</b> ${p.qty}</p>
+<p><b>Category:</b> ${p.category}</p>
+
+<p><b>Description:</b></p>
+<p>${p.description || "No description"}</p>
+
+<p><b>RAM:</b> ${p.ram || "-"}</p>
+<p><b>Storage:</b> ${p.storage || "-"}</p>
+<p><b>Battery:</b> ${p.battery || "-"}</p>
+
+</div>
+`
+
+document.getElementById("details").innerHTML = data
+
+}
+
+
+
 function addToCart(i){
 
 let inventory = JSON.parse(localStorage.getItem("inventory"))
 
-if(inventory[i].qty<=0){
+let product = inventory[i]
+
+if(product.qty <= 0){
 alert("Out of stock")
 return
 }
 
 let cart = JSON.parse(localStorage.getItem("cart")) || []
 
-cart.push(inventory[i])
+let index = cart.findIndex(p => p.id == product.id)
+
+if(index != -1){
+
+    let currentQty = cart[index].cartQty || 1
+
+    //  منع الزيادة عن المخزون
+    if(currentQty >= product.qty){
+        alert("Max stock reached")
+        return
+    }
+
+    cart[index].cartQty = currentQty + 1
+
+}else{
+
+    product.cartQty = 1
+    cart.push(product)
+}
 
 localStorage.setItem("cart",JSON.stringify(cart))
 }
+
+function addToCart(i){
+
+let inventory = JSON.parse(localStorage.getItem("inventory"))
+
+let product = inventory[i]
+
+if(product.qty <= 0){
+alert("Out of stock")
+return
+}
+
+let cart = JSON.parse(localStorage.getItem("cart")) || []
+
+let index = cart.findIndex(p => p.id == product.id)
+
+if(index != -1){
+
+    let currentQty = cart[index].cartQty || 1
+
+    //  منع الزيادة عن المخزون
+    if(currentQty >= product.qty){
+        alert("Max stock reached")
+        return
+    }
+
+    cart[index].cartQty = currentQty + 1
+
+}else{
+
+    product.cartQty = 1
+    cart.push(product)
+}
+
+localStorage.setItem("cart",JSON.stringify(cart))
+}
+
+
 
 function showCart(){
 
@@ -114,6 +218,9 @@ localStorage.setItem("cart",JSON.stringify(cart))
 showCart()
 }
 
+
+
+
 function confirmBuy(){
 
 let cart = JSON.parse(localStorage.getItem("cart")) || []
@@ -148,6 +255,9 @@ localStorage.removeItem("cart")
 
 window.location="categories.html"
 }
+
+
+
 
 function showDashboard(){
 
@@ -198,6 +308,10 @@ inv+=`
 document.getElementById("inventory").innerHTML=inv
 }
 
+
+
+
+
 function returnProduct(i){
 
 let orders = JSON.parse(localStorage.getItem("orders"))
@@ -219,6 +333,9 @@ localStorage.setItem("inventory",JSON.stringify(inventory))
 showDashboard()
 }
 
+
+
+
 function deleteOrder(i){
 
 let orders = JSON.parse(localStorage.getItem("orders"))
@@ -230,6 +347,9 @@ localStorage.setItem("orders",JSON.stringify(orders))
 showDashboard()
 }
 
+
+
+
 function editQty(i,value){
 
 let inventory = JSON.parse(localStorage.getItem("inventory"))
@@ -238,6 +358,9 @@ inventory[i].qty = Number(value)
 
 localStorage.setItem("inventory",JSON.stringify(inventory))
 }
+
+
+
 
 function deleteProduct(i){
 
@@ -250,6 +373,10 @@ localStorage.setItem("inventory",JSON.stringify(inventory))
 showDashboard()
 }
 
+
+
+
+//  إضافة المنتج (صورة واحدة فقط + تفريغ الحقول)
 function addProduct(){
 
 let name = document.getElementById("pname").value
@@ -257,6 +384,12 @@ let price = document.getElementById("pprice").value
 let profit = document.getElementById("pprofit").value
 let cat = document.getElementById("pcat").value
 let file = document.getElementById("pimg").files[0]
+
+// التفاصيل
+let desc = document.getElementById("pdesc").value
+let ram = document.getElementById("pram").value
+let storage = document.getElementById("pstorage").value
+let battery = document.getElementById("pbattery").value
 
 if(!name || !price || !profit || !cat || !file){
 alert("Fill all fields")
@@ -278,23 +411,38 @@ price:Number(price),
 profit:Number(profit),
 qty:0,
 category:cat,
-img:img
+
+img:img,
+
+description:desc,
+ram:ram,
+storage:storage,
+battery:battery
 })
 
 localStorage.setItem("inventory",JSON.stringify(inventory))
 
 showDashboard()
 
+// تفريغ الفيلد
 document.getElementById("pname").value=""
 document.getElementById("pprice").value=""
 document.getElementById("pprofit").value=""
 document.getElementById("pcat").value=""
 document.getElementById("pimg").value=""
+document.getElementById("pdesc").value=""
+document.getElementById("pram").value=""
+document.getElementById("pstorage").value=""
+document.getElementById("pbattery").value=""
 
 }
 
 reader.readAsDataURL(file)
+
 }
+
+
+
 
 function searchProduct(){
 
@@ -309,11 +457,11 @@ inventory.forEach((p,i)=>{
 if(p.name.toLowerCase().includes(value)){
 
 data+=`
-<div class="card">
+<div class="card" onclick="viewProduct(${i})">
 <img src="${p.img}">
 <h3>${p.name}</h3>
 <p>${p.price}</p>
-<button onclick="addToCart(${i})">Add</button>
+<button onclick="addToCart(${i});event.stopPropagation()">Add</button>
 </div>
 `
 
@@ -324,20 +472,14 @@ data+=`
 document.getElementById("products").innerHTML=data
 }
 
+
+
 function goCart(){
 window.location="cart.html"
 }
 
+
+
 function backHome(){
 window.location="login.html"
-}
-
-function viewProduct(i){
-
-let inventory = JSON.parse(localStorage.getItem("inventory"))
-
-localStorage.setItem("selectedProduct", JSON.stringify(inventory[i]))
-
-window.location = "productDetails.html"
-
 }
