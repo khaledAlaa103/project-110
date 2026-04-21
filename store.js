@@ -1,220 +1,343 @@
-let title = document.getElementById("title");
-let price = document.getElementById("price");
-let Taxes = document.getElementById("Taxes");
-let Ads = document.getElementById("Ads");
-let Discount = document.getElementById("Discount");
-let total = document.querySelector(".price small");
-let count = document.getElementById("count");
-let category = document.getElementById("category");
-let submit = document.getElementById("submit");
+let inventory = JSON.parse(localStorage.getItem("inventory")) || []
+let orders = JSON.parse(localStorage.getItem("orders")) || []
 
-let mood = "create";
-let tmp;
-
-
-// get total التوال
-
-function getTotal() {
-    if (price.value !== "") {
-        let result = (+price.value + +Taxes.value + +Ads.value) - +Discount.value;
-        total.innerHTML = result;
-        total.style.background = "#040";
-    } else {
-        total.innerHTML = "";
-        total.style.background = "#a00d02";
-    }
+function adminLogin(){
+let pass = prompt("Enter Admin Password")
+if(pass=="1234"){
+window.location="dashboard.html"
+}else{
+alert("Wrong Password")
+}
 }
 
+function saveCustomer(){
 
-// data storage حفظ البيانات
+let name=document.getElementById("name").value
+let phone=document.getElementById("phone").value
+let address=document.getElementById("address").value
 
-let dataPro;
-
-if (localStorage.product != null) {
-    dataPro = JSON.parse(localStorage.product);
-} else {
-    dataPro = [];
+if(!name || !phone || !address){
+alert("Enter all fields")
+return
 }
 
+localStorage.setItem("customer",JSON.stringify({
+name:name,
+phone:phone,
+address:address
+}))
 
-// create / update  الاضافه وتعديل المنتجات
-
-submit.onclick = function () {
-
-    let newPro = {
-        title: title.value.toLowerCase(),
-        price: price.value,
-        Taxes: Taxes.value,
-        Ads: Ads.value,
-        Discount: Discount.value,
-        total: total.innerHTML,
-        count: count.value,
-        category: category.value.toLowerCase(),
-    };
-
-    // validation بسيطة
-    
-    if (title.value === "" || price.value === "") {
-        alert("Please enter title and price");
-        return;
-    }
-
-    if (mood === "create") {
-
-        if (newPro.count > 1) {
-            for (let i = 0; i < newPro.count; i++) {
-                dataPro.push({ ...newPro });
-            }
-        } else {
-            dataPro.push(newPro);
-        }
-
-    } else {
-        dataPro[tmp] = newPro;
-        mood = "create";
-        submit.innerHTML = "Add Product";
-        count.style.display = "block";
-    }
-
-    localStorage.setItem("product", JSON.stringify(dataPro));
-
-    clearData();
-    readData();
-};
-
-// clear inputs مسح البيانات 
-
-function clearData() {
-    title.value = "";
-    price.value = "";
-    Taxes.value = "";
-    Ads.value = "";
-    Discount.value = "";
-    total.innerHTML = "";
-    count.value = "";
-    category.value = "";
+window.location="categories.html"
 }
 
-
-// read data قراءه البيانات
-
-function readData() {
-    getTotal();
-    let table = "";
-
-    for (let i = 0; i < dataPro.length; i++) {
-        table += `
-        <tr>
-        <td>${i + 1}</td>
-        <td>${dataPro[i].title}</td>
-        <td>${dataPro[i].price}</td>
-        <td>${dataPro[i].Taxes}</td>
-        <td>${dataPro[i].Ads}</td>
-        <td>${dataPro[i].Discount}</td>
-        <td>${dataPro[i].total}</td>
-        <td>${dataPro[i].category}</td>
-        <td><button onclick="updateData(${i})">Update</button></td>
-        <td><button onclick="deleteData(${i})">Delete</button></td>
-        </tr>`;
-    }
-
-    document.getElementById("tbody").innerHTML = table;
-
-    let btnDelete = document.getElementById("deleteAll");
-
-    if (dataPro.length > 0) {
-        btnDelete.innerHTML = `
-        <button onclick="deleteAll()">Delete All (${dataPro.length})</button>`;
-    } else {
-        btnDelete.innerHTML = "";
-    }
+function goCategory(cat){
+localStorage.setItem("category",cat)
+window.location="products.html"
 }
 
-readData();
+function showProducts(){
 
+let inventory = JSON.parse(localStorage.getItem("inventory"))
+let cat = localStorage.getItem("category")
 
-// delete
+let data=""
 
-function deleteData(i) {
-    dataPro.splice(i, 1);
-    localStorage.product = JSON.stringify(dataPro);
-    readData();
+inventory.forEach((p,i)=>{
+
+if(p.category==cat){
+
+data+=`
+<div class="card" onclick="viewProduct(${i})">
+<img src="${p.img}">
+<h3>${p.name}</h3>
+<p>Price : ${p.price}</p>
+<p>Stock : ${p.qty}</p>
+<button onclick="addToCart(${i});event.stopPropagation()">Add To Cart</button>
+</div>
+`
+
 }
 
-function deleteAll() {
-    localStorage.clear();
-    dataPro = [];
-    readData();
+})
+
+document.getElementById("products").innerHTML=data
 }
 
+function addToCart(i){
 
-// update
+let inventory = JSON.parse(localStorage.getItem("inventory"))
 
-function updateData(i) {
-    title.value = dataPro[i].title;
-    price.value = dataPro[i].price;
-    Taxes.value = dataPro[i].Taxes;
-    Ads.value = dataPro[i].Ads;
-    Discount.value = dataPro[i].Discount;
-    category.value = dataPro[i].category;
-
-    getTotal();
-
-    count.style.display = "none";
-    submit.innerHTML = "Update";
-
-    mood = "update";
-    tmp = i;
-
-    scroll({
-        top: 0,
-        behavior: "smooth",
-    });
+if(inventory[i].qty<=0){
+alert("Out of stock")
+return
 }
 
+let cart = JSON.parse(localStorage.getItem("cart")) || []
 
-// search
+cart.push(inventory[i])
 
-let search = document.getElementById("search");
-let searchMood = "title";
-
-function getSearchMood(id) {
-    if (id === "searchtitle") {
-        searchMood = "title";
-    } else {
-        searchMood = "category";
-    }
-
-    search.placeholder = "Search By " + searchMood;
-    search.focus();
-    search.value = "";
+localStorage.setItem("cart",JSON.stringify(cart))
 }
 
-function searchData(value) {
-    let table = "";
-    let searchValue = value.toLowerCase();
+function showCart(){
 
-    for (let i = 0; i < dataPro.length; i++) {
+let cart = JSON.parse(localStorage.getItem("cart")) || []
 
-        if (
-            (searchMood === "title" && dataPro[i].title.includes(searchValue)) ||
-            (searchMood === "category" && dataPro[i].category.includes(searchValue))
-        ) {
-            table += `
-            <tr>
-            <td>${i + 1}</td>
-            <td>${dataPro[i].title}</td>
-            <td>${dataPro[i].price}</td>
-            <td>${dataPro[i].Taxes}</td>
-            <td>${dataPro[i].Ads}</td>
-            <td>${dataPro[i].Discount}</td>
-            <td>${dataPro[i].total}</td>
-            <td>${dataPro[i].category}</td>
-            <td><button onclick="updateData(${i})">Update</button></td>
-            <td><button onclick="deleteData(${i})">Delete</button></td>
-            </tr>`;
-        }
-    }
+let total=0
+let data=""
 
-    document.getElementById("tbody").innerHTML = table;
+cart.forEach((p,i)=>{
+
+total+=Number(p.price)
+
+data+=`
+<div class="card">
+<h3>${p.name}</h3>
+<p>${p.price}</p>
+<button onclick="removeCart(${i})">Remove</button>
+</div>
+`
+
+})
+
+document.getElementById("cart").innerHTML=data
+document.getElementById("total").innerHTML=total
+}
+
+function removeCart(i){
+
+let cart = JSON.parse(localStorage.getItem("cart"))
+cart.splice(i,1)
+
+localStorage.setItem("cart",JSON.stringify(cart))
+
+showCart()
+}
+
+function confirmBuy(){
+
+let cart = JSON.parse(localStorage.getItem("cart")) || []
+let orders = JSON.parse(localStorage.getItem("orders")) || []
+let inventory = JSON.parse(localStorage.getItem("inventory"))
+let customer = JSON.parse(localStorage.getItem("customer"))
+
+cart.forEach(item=>{
+
+let index = inventory.findIndex(p=>p.id==item.id)
+
+if(inventory[index].qty>0){
+
+inventory[index].qty--
+
+orders.push({
+customer:customer.name,
+product:item.name,
+price:item.price,
+profit:inventory[index].profit,
+date:new Date().toLocaleString()
+})
+
+}
+
+})
+
+localStorage.setItem("orders",JSON.stringify(orders))
+localStorage.setItem("inventory",JSON.stringify(inventory))
+
+localStorage.removeItem("cart")
+
+window.location="categories.html"
+}
+
+function showDashboard(){
+
+let orders = JSON.parse(localStorage.getItem("orders")) || []
+let inventory = JSON.parse(localStorage.getItem("inventory"))
+
+let totalProfit=0
+let data=""
+
+orders.forEach((o,i)=>{
+
+totalProfit+=Number(o.profit)
+
+data+=`
+<tr>
+<td>${o.customer}</td>
+<td>${o.product}</td>
+<td>${o.price}</td>
+<td>${o.profit}</td>
+<td>${o.date}</td>
+<td><button onclick="returnProduct(${i})">Return</button></td>
+<td><button onclick="deleteOrder(${i})">Delete</button></td>
+</tr>
+`
+
+})
+
+document.getElementById("orders").innerHTML=data
+document.getElementById("profit").innerHTML=totalProfit
+
+let inv=""
+
+inventory.forEach((p,i)=>{
+
+inv+=`
+<tr>
+<td><img src="${p.img}" width="50"></td>
+<td>${p.name}</td>
+<td>${p.price}</td>
+<td>${p.profit}</td>
+<td><input value="${p.qty}" onchange="editQty(${i},this.value)"></td>
+<td><button onclick="deleteProduct(${i})">Delete</button></td>
+</tr>
+`
+
+})
+
+document.getElementById("inventory").innerHTML=inv
+}
+
+function returnProduct(i){
+
+let orders = JSON.parse(localStorage.getItem("orders"))
+let inventory = JSON.parse(localStorage.getItem("inventory"))
+
+let order = orders[i]
+
+let index = inventory.findIndex(p=>p.name==order.product)
+
+if(index!=-1){
+inventory[index].qty++
+}
+
+orders.splice(i,1)
+
+localStorage.setItem("orders",JSON.stringify(orders))
+localStorage.setItem("inventory",JSON.stringify(inventory))
+
+showDashboard()
+}
+
+function deleteOrder(i){
+
+let orders = JSON.parse(localStorage.getItem("orders"))
+
+orders.splice(i,1)
+
+localStorage.setItem("orders",JSON.stringify(orders))
+
+showDashboard()
+}
+
+function editQty(i,value){
+
+let inventory = JSON.parse(localStorage.getItem("inventory"))
+
+inventory[i].qty = Number(value)
+
+localStorage.setItem("inventory",JSON.stringify(inventory))
+}
+
+function deleteProduct(i){
+
+let inventory = JSON.parse(localStorage.getItem("inventory"))
+
+inventory.splice(i,1)
+
+localStorage.setItem("inventory",JSON.stringify(inventory))
+
+showDashboard()
+}
+
+function addProduct(){
+
+let name = document.getElementById("pname").value
+let price = document.getElementById("pprice").value
+let profit = document.getElementById("pprofit").value
+let cat = document.getElementById("pcat").value
+let file = document.getElementById("pimg").files[0]
+
+if(!name || !price || !profit || !cat || !file){
+alert("Fill all fields")
+return
+}
+
+let reader = new FileReader()
+
+reader.onload = function(e){
+
+let img = e.target.result
+
+let inventory = JSON.parse(localStorage.getItem("inventory")) || []
+
+inventory.push({
+id:Date.now(),
+name:name,
+price:Number(price),
+profit:Number(profit),
+qty:0,
+category:cat,
+img:img
+})
+
+localStorage.setItem("inventory",JSON.stringify(inventory))
+
+showDashboard()
+
+document.getElementById("pname").value=""
+document.getElementById("pprice").value=""
+document.getElementById("pprofit").value=""
+document.getElementById("pcat").value=""
+document.getElementById("pimg").value=""
+
+}
+
+reader.readAsDataURL(file)
+}
+
+function searchProduct(){
+
+let value=document.getElementById("search").value.toLowerCase()
+
+let inventory = JSON.parse(localStorage.getItem("inventory"))
+
+let data=""
+
+inventory.forEach((p,i)=>{
+
+if(p.name.toLowerCase().includes(value)){
+
+data+=`
+<div class="card">
+<img src="${p.img}">
+<h3>${p.name}</h3>
+<p>${p.price}</p>
+<button onclick="addToCart(${i})">Add</button>
+</div>
+`
+
+}
+
+})
+
+document.getElementById("products").innerHTML=data
+}
+
+function goCart(){
+window.location="cart.html"
+}
+
+function backHome(){
+window.location="login.html"
+}
+
+function viewProduct(i){
+
+let inventory = JSON.parse(localStorage.getItem("inventory"))
+
+localStorage.setItem("selectedProduct", JSON.stringify(inventory[i]))
+
+window.location = "productDetails.html"
+
 }
