@@ -1,105 +1,77 @@
-* {
-    margin: 0 auto;
-    padding: 0;
+body{
+background:#222;
+color:white;
+font-family:system-ui;
+text-align:center;
+margin:0;
 }
 
-body {
-    background: #222;
-    color: #fff;
-    font-family: system-ui;
+.container{
+width:90%;
+margin:auto;
 }
 
-.crud {
-    width: 80%;
-    margin: auto;
-
+input{
+width:100%;
+height:40px;
+margin:10px 0;
+background:#111;
+border:none;
+color:white;
+padding:5px;
 }
 
-.head {
-    text-align: center;
-    margin: 10px 0;
-    text-transform: uppercase;
-
+button{
+width:100%;
+height:40px;
+background:#8b3a3a;
+border:none;
+color:white;
+margin:5px 0;
+cursor:pointer;
 }
 
-input {
-    width: 100%;
-    height: 30px;
-    outline: none;
-    border: none;
-    background: #111;
-    margin: 4px 0;
-    border-radius: 4px;
-    padding: 4px;
-    color: white;
+.card{
+background:#111;
+padding:10px;
+margin:10px;
+display:inline-block;
+width:220px;
+border-radius:10px;
 }
 
-input:focus {
-    background: #000;
-    transform: scale(1.1);
-    margin: 10px;
+.card img{
+width:100%;
+height:150px;
+object-fit:cover;
 }
 
-.price input {
-    width: 20%;
+.login-body{
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
 }
 
-#total {
-    background: rgb(150, 50, 43);
-    padding: 5px 2px;
-    border-radius: 4px;
-    font-weight: bold;
-    font-size: 18px;
+.login-box{
+width:350px;
 }
 
-#total::before {
-    content: "Total : ";
-    color: #fff;
+.login-title{
+font-size:40px;
+margin-bottom:40px;
 }
 
-button {
-    width: 100%;
-    height: 30px;
-    outline: none;
-    border: none;
-    cursor: pointer;
-    background: #030303;
-    margin: 4px 0;
-    border-radius: 20px;
-    padding: 4px;
-    color: rgb(239, 236, 236);
-    text-transform: uppercase;
-    transition: 0.5s;
+.login-btn{
+height:55px;
+font-size:18px;
 }
 
-button:hover {
-    background: #4c3c3c;
-    transform: scale(1.1);
-    letter-spacing: 1px;
-}
-
-.btnsearch {
-    display: flex;
-    justify-content: space-between;
-
-}
-
-.btnsearch button {
-    width: 48%;
-    margin: 0 2px;
-}
-
-table {
-    width: 100%;
-    text-align: center;
-    margin: 10px 0;
-}
-
-table thead {
-    background: #403a3a;
-    text-transform: uppercase;
-}
-
-table thead tr th {
-    padding: 5px 0;
+.select-box{
+width:100%;
+height:40px;
+margin:10px 0;
+background:#111;
+color:white;
+border:none;
 }
