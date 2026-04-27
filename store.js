@@ -483,3 +483,15 @@ window.location="cart.html"
 function backHome(){
 window.location="login.html"
 }
+
+function toggleFields(){
+
+let cat = document.getElementById("pcat").value
+let fields = document.getElementById("mobileFields")
+
+if(cat === "mobile"){
+    fields.style.display = "block"
+}else{
+    fields.style.display = "none"
+}
+}
