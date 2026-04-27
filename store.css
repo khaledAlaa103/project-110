@@ -115,3 +115,7 @@ text-shadow:
 0 0 30px rgba(96, 57, 57, 0.6);
 }
 
+#mobileFields{
+display:none;
+}
+
